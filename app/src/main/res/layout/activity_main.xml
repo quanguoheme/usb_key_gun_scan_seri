@@ -28,4 +28,17 @@
         android:layout_below="@+id/editCode"
         android:text="Button" />
 
+
+    <TextView
+        android:id="@+id/TextViewCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_below="@+id/btn_scan"
+        android:textSize="22dp"
+        android:enabled="true" >
+
+
+    </TextView>
+
 </RelativeLayout>
