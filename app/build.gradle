@@ -27,5 +27,5 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jarMainActivity.java'])
     implementation 'com.android.support:appcompat-v7:26+'
 
-    implementation files('libs/HdxUtil.jar')
+
 }

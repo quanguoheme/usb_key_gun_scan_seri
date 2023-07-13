@@ -15,7 +15,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentRight="true"
         android:ems="10"
-        android:enabled="false" >
+        android:enabled="true" >
 
         <requestFocus />
     </EditText>
