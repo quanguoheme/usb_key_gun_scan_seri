@@ -8,6 +8,8 @@ import android.os.HandlerThread;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
+
+import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -21,14 +23,15 @@ public class ScanGunKeyEventHelper {
     private StringBuffer mStringBufferResult;                  //扫码内容
     private boolean mCaps;                                     //大小写区分
     private final HandlerThread workThread;
-    Handler mHandler;
+    private Handler mHandler;
     //private final BluetoothAdapter mBluetoothAdapter;
     private final Runnable mScanningFishedRunnable;
-    private OnScanSuccessListener mOnScanSuccessListener;
-    private String mDeviceName;
+   // private OnScanSuccessListener mOnScanSuccessListener;
+    private WeakReference<OnScanSuccessListener> mOnScanSuccessListener;
+   // private String mDeviceName;
 
     public ScanGunKeyEventHelper(OnScanSuccessListener onScanSuccessListener) {
-        mOnScanSuccessListener = onScanSuccessListener ;
+        mOnScanSuccessListener = new WeakReference<OnScanSuccessListener>(onScanSuccessListener);
      //   mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mStringBufferResult = new StringBuffer();
         workThread = new HandlerThread("scan_gun");
@@ -48,8 +51,9 @@ public class ScanGunKeyEventHelper {
      */
     private void performScanSuccess() {
         String barcode = mStringBufferResult.toString();
-        if (mOnScanSuccessListener != null)
-            mOnScanSuccessListener.onScanSuccess(barcode);
+        OnScanSuccessListener listener=  mOnScanSuccessListener.get();
+        if (listener != null && mStringBufferResult.length() !=0)
+            listener.onScanSuccess(barcode);
         mStringBufferResult.setLength(0);
     }
 
@@ -75,7 +79,8 @@ public class ScanGunKeyEventHelper {
 
             if (keyCode == KeyEvent.KEYCODE_ENTER) {
                 //若为回车键，直接返回
-                mHandler.removeCallbacks(mScanningFishedRunnable);
+               // mHandler.removeCallbacks(mScanningFishedRunnable);
+                mHandler.removeCallbacksAndMessages(null);
                 mHandler.post(mScanningFishedRunnable);
             } else {
                 //延迟post，若500ms内，有其他事件
@@ -149,7 +154,8 @@ public class ScanGunKeyEventHelper {
 
     public void onDestroy() {
         workThread.quit(); // 退出消息循环.quit(); // 退出消息循环
-        mHandler.removeCallbacks(mScanningFishedRunnable);
+        //mHandler.removeCallbacks(mScanningFishedRunnable);
+        mHandler.removeCallbacksAndMessages(null);
         mOnScanSuccessListener = null;
     }
 
