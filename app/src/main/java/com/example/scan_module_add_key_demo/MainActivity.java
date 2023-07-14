@@ -13,15 +13,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.chen.scangon.helper.ScanGunKeyEventHelper;
+
 import java.util.HashMap;
 import java.util.Map;
 
 
-public class  MainActivity extends Activity {
+public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnScanSuccessListener {
 
 	EditText editText;
     TextView TextViewCode;
-
+    private ScanGunKeyEventHelper mScanGunKeyEventHelper;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -29,6 +31,8 @@ public class  MainActivity extends Activity {
 		editText=(EditText)findViewById(R.id.editCode);
         TextViewCode =findViewById(R.id.TextViewCode);
 		final Button open = (Button)findViewById(R.id.btn_scan);
+
+        mScanGunKeyEventHelper = new ScanGunKeyEventHelper(this);
         open.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				editText.setText("");
@@ -40,38 +44,28 @@ public class  MainActivity extends Activity {
 
 	protected void onDestroy() {
 
-
+        mScanGunKeyEventHelper.onDestroy();
 		super.onDestroy();
 	}
 
-	
-    private static String bufferToHex(byte bytes[]) {  
-        return bufferToHex(bytes, 0, bytes.length);  
-    }  
-    protected static char hexDigits[] = { '0', '1', '2', '3', '4', '5', '6',  
-        '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };  
-  
-    private static String bufferToHex(byte bytes[], int m, int n) {  
-        StringBuffer stringbuffer = new StringBuffer(2 * n);  
-        int k = m + n;  
-        for (int l = m; l < k; l++) {  
-            appendHexPair(bytes[l], stringbuffer);  
-        }  
-        return stringbuffer.toString();  
-    }  
-  
-    private static void appendHexPair(byte bt, StringBuffer stringbuffer) {  
-        char c0 = hexDigits[(bt & 0xf0) >> 4];// ȡ�ֽ��и� 4 λ������ת��, >>> Ϊ�߼����ƣ�������λһ������,�˴�δ�������ַ����кβ�ͬ   
-        char c1 = hexDigits[bt & 0xf];// ȡ�ֽ��е� 4 λ������ת��   
-        stringbuffer.append(c0);  
-        stringbuffer.append(c1);  
-    }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    public boolean dispatchKeyEvent(KeyEvent event) {
 
-        return false;
+       //  if (mScanGunKeyEventHelper.isScanGunEvent(event)) {
+        mScanGunKeyEventHelper.analysisKeyEvent(event);
+      //  return true;
+       // }
+        return true;
+        //  return super.dispatchKeyEvent(event);
     }
+
+
+    @Override
+    public void onScanSuccess(String barcode) {
+        Log.d("ca1","jason: "+barcode);
+    }
+
 /*
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

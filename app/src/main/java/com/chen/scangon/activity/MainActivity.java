@@ -49,7 +49,7 @@ public class MainActivity extends Activity implements ScanGunKeyEventHelper.OnSc
         mList = new ArrayList<>();
         mAdapter = new ScanAdapter(mContext, mList);
         lv_main.setAdapter(mAdapter);
-        registerBoradcastReceiver();
+        //registerBoradcastReceiver();
         mScanGunKeyEventHelper = new ScanGunKeyEventHelper(this);
     }
 
@@ -74,9 +74,9 @@ public class MainActivity extends Activity implements ScanGunKeyEventHelper.OnSc
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mScanGunKeyEventHelper.hasScanGun()) {
+       /* if (!mScanGunKeyEventHelper.hasScanGun()) {
             Toast.makeText(mContext, "未检测到扫码枪设备", Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 
 

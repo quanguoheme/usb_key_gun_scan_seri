@@ -4,6 +4,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import java.util.Iterator;
@@ -18,17 +20,20 @@ public class ScanGunKeyEventHelper {
     private final static long MESSAGE_DELAY = 500;             //延迟500ms，判断扫码是否完成。
     private StringBuffer mStringBufferResult;                  //扫码内容
     private boolean mCaps;                                     //大小写区分
-    private final Handler mHandler;
-    private final BluetoothAdapter mBluetoothAdapter;
+    private final HandlerThread workThread;
+    Handler mHandler;
+    //private final BluetoothAdapter mBluetoothAdapter;
     private final Runnable mScanningFishedRunnable;
     private OnScanSuccessListener mOnScanSuccessListener;
     private String mDeviceName;
 
     public ScanGunKeyEventHelper(OnScanSuccessListener onScanSuccessListener) {
         mOnScanSuccessListener = onScanSuccessListener ;
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+     //   mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mStringBufferResult = new StringBuffer();
-        mHandler = new Handler();
+        workThread = new HandlerThread("scan_gun");
+        workThread.start();
+        mHandler=new  Handler(workThread.getLooper());
         mScanningFishedRunnable = new Runnable() {
             @Override
             public void run() {
@@ -143,6 +148,7 @@ public class ScanGunKeyEventHelper {
 
 
     public void onDestroy() {
+        workThread.quit(); // 退出消息循环.quit(); // 退出消息循环
         mHandler.removeCallbacks(mScanningFishedRunnable);
         mOnScanSuccessListener = null;
     }
@@ -157,39 +163,20 @@ public class ScanGunKeyEventHelper {
     /**
      * 扫描枪是否连接
      * @return
-     */
+
     public boolean hasScanGun() {
 
-        if (mBluetoothAdapter == null) {
-            return false;
-        }
 
-        Set<BluetoothDevice> blueDevices = mBluetoothAdapter.getBondedDevices();
-
-        if (blueDevices == null || blueDevices.size() <= 0) {
-            return false;
-        }
-
-        for (Iterator<BluetoothDevice> iterator = blueDevices.iterator(); iterator.hasNext(); ) {
-            BluetoothDevice bluetoothDevice = iterator.next();
-
-            if (bluetoothDevice.getBluetoothClass().getMajorDeviceClass() == BluetoothClass.Device.Major.PERIPHERAL) {
-                mDeviceName = bluetoothDevice.getName();
-                return isInputDeviceExist(mDeviceName);
-            }
-
-        }
-
-        return false;
+        return true;
 
     }
-
+  */
 
     /**
      * 输入设备是否存在
      * @param deviceName
      * @return
-     */
+
     private boolean isInputDeviceExist(String deviceName) {
         int[] deviceIds = InputDevice.getDeviceIds();
 
@@ -200,18 +187,20 @@ public class ScanGunKeyEventHelper {
         }
         return false;
     }
-
+ */
 
     /**
      * 是否为扫码枪事件(部分机型KeyEvent获取的名字错误)
      * @param event
      * @return
-     */
+
     @Deprecated
     public boolean isScanGunEvent(KeyEvent event) {
-        return event.getDevice().getName().equals(mDeviceName);
+        Log.d("ca1",""+event.getDevice().getName());
+        return true;
+       // return event.getDevice().getName().equals(mDeviceName);
     }
-
+  */
 
 
 }
