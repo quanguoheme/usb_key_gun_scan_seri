@@ -4,8 +4,15 @@ package com.example.scan_module_add_key_demo;
 
 import android.app.Activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.BatteryManager;
 import android.os.Bundle;
 
+import android.os.PowerManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -31,6 +38,8 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
 		editText=(EditText)findViewById(R.id.editCode);
         TextViewCode =findViewById(R.id.TextViewCode);
 		final Button open = (Button)findViewById(R.id.btn_scan);
+        // 获取当前设备的电源管理器
+       reg_Receiver_for_BatteryCharging(this);
 
         mScanGunKeyEventHelper = new ScanGunKeyEventHelper(this);
         open.setOnClickListener(new View.OnClickListener() {
@@ -38,13 +47,35 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
 				editText.setText("");
                 TextViewCode.setText("");
 			}
-		});		
+		});
+        init_view();
 	}
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return super.onKeyDown(keyCode, event);
+    }
+    Button btn_pd3;
+    void init_view()
+    {
+            btn_pd3 = (Button)findViewById(R.id.btn_pd3);
+        final Button open = (Button)findViewById(R.id.btn_pd2);
+        open.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        YFactoryApi.execFor7("reboot -p");
+                    }
+                }).start();
+            }
+        });
+    }
 
 	protected void onDestroy() {
 
         mScanGunKeyEventHelper.onDestroy();
+        unReg_Receiver_for_BatteryCharging(this);
 		super.onDestroy();
 	}
 
@@ -65,81 +96,76 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
     public void onScanSuccess(String barcode) {
         Log.d("ca1","jason: "+barcode);
     }
+    public     BatteryReceiver   mBatteryReceiver2=new BatteryReceiver();
+    public   class BatteryReceiver extends BroadcastReceiver {
+        public static final String TAG = "batt2";
 
-/*
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        checkLetterStatus(event);
-        keyCodeToNum(keyCode);
-        if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
-            Log.e("ca1","键盘事件"+ buffer.toString());
-            buffer.delete(0, buffer.length());
-            return true;
-        }
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // 获取广播事件
+            String action = intent.getAction();
 
-        return false;
-    }
-
-
-    //检查shift键
-    private void checkLetterStatus(KeyEvent event) {
-        int keyCode = event.getKeyCode();
-        if (keyCode == KeyEvent.KEYCODE_SHIFT_RIGHT || keyCode == KeyEvent.KEYCODE_SHIFT_LEFT) {
-            if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                //按着shift键，表示大写
-                mCaps = true;
-            } else {
-                //松开shift键，表示小写
-                mCaps = false;
-            }
-        }
-    }
-    //根据keycode得到对应的字母和数字
-    private void keyCodeToNum(int keycode) {
-        if (keycode >= KeyEvent.KEYCODE_A && keycode <= KeyEvent.KEYCODE_Z) {
-            if (mCaps) {
-                buffer.append(map.get(keycode).toUpperCase());
-            } else {
-                buffer.append(map.get(keycode));
+            if(!TextUtils.equals("android.intent.action.BATTERY_CHANGED", action)){
+                    return;
             }
 
-        } else if ((keycode >= KeyEvent.KEYCODE_0 && keycode <= KeyEvent.KEYCODE_9)) {
-            buffer.append(keycode - KeyEvent.KEYCODE_0);
-        } else {
-            //暂不处理特殊符号
-        }
+            Log.e(TAG, "  jason2 :  554335level:"+
+                    ", intent.getAction():"+ intent.getAction());
+            Log.e(TAG, " jason2  " + intent.getIntExtra("level", -1));
+            Log.e(TAG, " jason2  " + intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -2));
+            final int levde=intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -2);
+            //BatteryManager.BATTERY_STATUS_CHARGING 表示是充电状态
+// BatteryManager.BATTERY_STATUS_DISCHARGING 放电中
+// BatteryManager.BATTERY_STATUS_NOT_CHARGING 未充电
+// BatteryManager.BATTERY_STATUS_FULL 电池满
+            if(BatteryManager.BATTERY_STATUS_CHARGING  == intent.getIntExtra("status", BatteryManager.BATTERY_STATUS_UNKNOWN))
+            {
+                Log.e(TAG, " jason2  BATTERY_STATUS_CHARGING " + intent.getIntExtra("status", BatteryManager.BATTERY_STATUS_UNKNOWN));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(levde ==100)
+                        {
+                            btn_pd3.setText("BATTERY_STATUS_is full 充电满 :"+levde);
+                        }
+                        else
+                        btn_pd3.setText("BATTERY_STATUS_CHARGING 充电中 :"+levde);
+                    }
+                });
+            }
+            else
+            {
+                Log.e(TAG, " jason2 ,battery is not at charging, " + intent.getIntExtra("status", BatteryManager.BATTERY_STATUS_UNKNOWN));
 
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        btn_pd3.setText("battery is not at charging(未充电) :"+levde);
+                    }
+                });
+            }
+
+
+
+        }
     }
 
+    public   void unReg_Receiver_for_BatteryCharging(Context context){
+        context.unregisterReceiver(mBatteryReceiver2);
+    }
 
-    static Map<Integer, String> map = new HashMap<>();
-   static {
+    /**
+     * 主动获取当前电池是否在充电 , 即数据线是否插在手机上
+     * @return
+     */
+    public   void reg_Receiver_for_BatteryCharging(Context context){
+        boolean isBatteryCharging = false;
 
-       map.put(29, "a");
-       map.put(30, "b");
-       map.put(31, "c");
-       map.put(32, "d");
-       map.put(33, "e");
-       map.put(34, "f");
-       map.put(35, "g");
-       map.put(36, "h");
-       map.put(37, "i");
-       map.put(38, "g");
-       map.put(39, "k");
-       map.put(40, "l");
-       map.put(41, "m");
-       map.put(42, "n");
-       map.put(43, "0");
-       map.put(44, "p");
-       map.put(45, "q");
-       map.put(46, "r");
-       map.put(47, "s");
-       map.put(48, "t");
-       map.put(49, "u");
-       map.put(50, "v");
-       map.put(51, "w");
-       map.put(52, "x");
-       map.put(53, "y");
-       map.put(54, "z");
-    }*/
+        // 主动发送包含是否正在充电状态的广播 , 该广播会持续发送
+        IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        // 注册广播接受者
+        Intent intent = context.registerReceiver(mBatteryReceiver2, intentFilter);
+
+
+    }
 }

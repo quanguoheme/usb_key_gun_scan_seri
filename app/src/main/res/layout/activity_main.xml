@@ -28,6 +28,21 @@
         android:layout_below="@+id/editCode"
         android:text="Button" />
 
+    <Button
+        android:id="@+id/btn_pd2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/btn_scan"
+        android:text="power down (关机)" />
+
+    <Button
+        android:id="@+id/btn_pd3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/btn_pd2"
+        android:text="is charging state? (获取充电状态)" />
 
     <TextView
         android:id="@+id/TextViewCode"
