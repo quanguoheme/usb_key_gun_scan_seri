@@ -1,19 +1,11 @@
 package com.chen.scangon.helper;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass;
-import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
-import android.view.InputDevice;
 import android.view.KeyEvent;
 
-import com.example.scan_module_add_key_demo.Scanner_Tools;
-
 import java.lang.ref.WeakReference;
-import java.util.Iterator;
-import java.util.Set;
 
 
 /**

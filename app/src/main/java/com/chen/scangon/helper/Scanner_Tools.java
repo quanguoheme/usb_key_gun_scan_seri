@@ -1,10 +1,4 @@
-package com.example.scan_module_add_key_demo;
-
-import java.io.File;
-import java.io.IOException;
-import java.security.InvalidParameterException;
-
-import android_serialport_api.SerialPort;
+package com.chen.scangon.helper;
 
 public class Scanner_Tools {
 

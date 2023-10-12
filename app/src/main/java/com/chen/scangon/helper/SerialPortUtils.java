@@ -14,7 +14,7 @@
  * limitations under the License. 
  */
 
-package com.example.scan_module_add_key_demo;
+package com.chen.scangon.helper;
 
 import android.util.Log;
 
