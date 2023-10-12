@@ -39,6 +39,7 @@ public   class SerialPortUtils {
 	protected OutputStream mOutputStream;
 	private InputStream mInputStream;
 	protected ReadThread mReadThread;
+
 	//private static final String TAG = "SerialPortActivity";
 	private int n = 0;
 	public boolean stop = false; 
@@ -115,12 +116,29 @@ public   class SerialPortUtils {
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-		}
 
+		}
+		//Log.d("ca1","jason2: "+bytesToHexString(buffer,size) +",size:"+size);
 
 	}
+/*
+	private static String bytesToHexString(byte[] bytes,int size) {
+		StringBuilder sb = new StringBuilder(bytes.length);
+		byte[] var3 = bytes;
+		int var4 = size;
 
+		for(int var5 = 0; var5 < var4; ++var5) {
+			byte aByte = var3[var5];
+			String temp = Integer.toHexString(255 & aByte);
+			if (temp.length() < 2) {
+				sb.append(0);
+			}
 
+			sb.append(temp);
+		}
+
+		return sb.toString();
+	}*/
 	protected void onDestroy() {
 		this.stop=true;
 		if (mReadThread != null)

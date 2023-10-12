@@ -122,19 +122,39 @@ public class ScanGunKeyEventHelper {
         } else {
             //其他符号
             switch (keyCode) {
+                case KeyEvent.KEYCODE_SEMICOLON:
+                    aChar = mCaps ? ':' : ';';
+                    break;
                 case KeyEvent.KEYCODE_PERIOD:
-                    aChar = '.';
+                    aChar = mCaps ? '>' : '.';
                     break;
                 case KeyEvent.KEYCODE_MINUS:
                     aChar = mCaps ? '_' : '-';
                     break;
                 case KeyEvent.KEYCODE_SLASH:
-                    aChar = '/';
+                    aChar = mCaps ? '?' : '/';
                     break;
                 case KeyEvent.KEYCODE_BACKSLASH:
                     aChar = mCaps ? '|' : '\\';
                     break;
+                case KeyEvent.KEYCODE_EQUALS:
+                    aChar = mCaps ? '+' : '=';
+                    break;
+                case KeyEvent.KEYCODE_LEFT_BRACKET:
+                    aChar = mCaps ? '{' : '[';
+                    break;
+                case KeyEvent.KEYCODE_RIGHT_BRACKET:
+                    aChar = mCaps ? '}' : ']';
+                    break;
+                case KeyEvent.KEYCODE_APOSTROPHE:
+                    aChar = mCaps ? '"' : '\'';
+                    break;
+                case KeyEvent.KEYCODE_AT:
+                    aChar =  '@';
+                    break;
                 default:
+                  //  if(keyCode!= 60&& keyCode!=59)
+                  //  Log.d("ca2","jason: "+ mCaps+  ",keyCode:"+keyCode);
                     aChar = 0;
                     break;
             }

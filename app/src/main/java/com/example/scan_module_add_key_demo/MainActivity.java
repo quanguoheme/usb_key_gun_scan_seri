@@ -16,6 +16,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -42,7 +43,7 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
 		final Button open = (Button)findViewById(R.id.btn_scan);
         // 获取当前设备的电源管理器
        reg_Receiver_for_BatteryCharging(this);
-
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         mScanGunKeyEventHelper = new ScanGunKeyEventHelper(this);
         open.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -96,18 +97,29 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
         //  return super.dispatchKeyEvent(event);
     }
 
-
+    String m_str="";
+    int count_line=0;
     @Override
     public void onScanSuccess(final String barcode) {
 
+       final String stdd=PasswdUtils.getMd5(barcode);
+        count_line++;
+        if( count_line >9)
+        {
+            count_line=0;
+            m_str="";
+        }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(MainActivity.this, "barcode: " + barcode, Toast.LENGTH_SHORT).show();
+
+                Toast.makeText(MainActivity.this, "barcode length: " +barcode.length()+",code:"+ barcode, Toast.LENGTH_SHORT).show();
+                m_str="\n"+count_line+" barcode length: "+barcode.length()+",md5sum:" +stdd+m_str;
+                editText.setText(m_str );
             }
         });
 
-        Log.d("ca1","jason: "+barcode.length() +",code:"+barcode);
+        Log.d("ca1","jason: "+barcode.length()+"," +PasswdUtils.getMd5(barcode)+",code:"+barcode);
     }
 
 
