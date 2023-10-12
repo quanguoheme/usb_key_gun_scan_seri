@@ -5,7 +5,7 @@ android {
     compileSdkVersion 26
     buildToolsVersion '28.0.3'
     defaultConfig {
-        applicationId "com.example.scan_module_add_key_demo"
+        applicationId "com.example.scan_module_add_key_demo2"
         minSdkVersion 23
         targetSdkVersion 31
         versionCode 1
@@ -21,10 +21,14 @@ android {
         }
     }
 
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDir "libs"
+    }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jarMainActivity.java'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:26+'
 
 

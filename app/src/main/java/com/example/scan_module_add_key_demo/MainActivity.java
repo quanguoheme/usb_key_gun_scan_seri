@@ -51,6 +51,7 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
 			}
 		});
         init_view();
+        Scanner_Tools.getUtil().onCreate(this);
 	}
 
     @Override
@@ -78,6 +79,7 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
 
         mScanGunKeyEventHelper.onDestroy();
         unReg_Receiver_for_BatteryCharging(this);
+        Scanner_Tools.getUtil().onDestroy();
 		super.onDestroy();
 	}
 
@@ -101,10 +103,10 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-
+                Toast.makeText(MainActivity.this, "barcode: " + barcode, Toast.LENGTH_SHORT).show();
             }
         });
-        Toast.makeText(MainActivity.this, "barcode: " + barcode, Toast.LENGTH_SHORT).show();
+
         Log.d("ca1","jason: "+barcode.length() +",code:"+barcode);
     }
 
