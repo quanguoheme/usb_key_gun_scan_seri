@@ -200,13 +200,13 @@ public class ScanGunKeyEventHelper {
      * @param event
      * @return
 
-    @Deprecated
+    @Deprecated*/
     public boolean isScanGunEvent(KeyEvent event) {
-        Log.d("ca1",""+event.getDevice().getName());
+        Log.d("ca1","name:"+event.getDevice().getName()+",vid:"+Integer.toHexString(event.getDevice().getVendorId())+",pid:"+Integer.toHexString(event.getDevice().getProductId()));
         return true;
        // return event.getDevice().getName().equals(mDeviceName);
     }
-  */
+
 
 
 }

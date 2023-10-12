@@ -19,7 +19,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.chen.scangon.helper.PasswdUtils;
 import com.chen.scangon.helper.ScanGunKeyEventHelper;
 
 import java.util.HashMap;
@@ -83,19 +85,30 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
 
-       //  if (mScanGunKeyEventHelper.isScanGunEvent(event)) {
-        mScanGunKeyEventHelper.analysisKeyEvent(event);
-      //  return true;
-       // }
+         /*if (mScanGunKeyEventHelper.isScanGunEvent(event)) {
+
+
+         }*/
+         mScanGunKeyEventHelper.analysisKeyEvent(event);
         return true;
         //  return super.dispatchKeyEvent(event);
     }
 
 
     @Override
-    public void onScanSuccess(String barcode) {
-        Log.d("ca1","jason: "+barcode);
+    public void onScanSuccess(final String barcode) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
+        Toast.makeText(MainActivity.this, "barcode: " + barcode, Toast.LENGTH_SHORT).show();
+        Log.d("ca1","jason: "+barcode.length() +",code:"+barcode);
     }
+
+
     public     BatteryReceiver   mBatteryReceiver2=new BatteryReceiver();
     public   class BatteryReceiver extends BroadcastReceiver {
         public static final String TAG = "batt2";
