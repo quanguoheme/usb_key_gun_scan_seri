@@ -9,6 +9,8 @@ import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 
+import com.example.scan_module_add_key_demo.Scanner_Tools;
+
 import java.lang.ref.WeakReference;
 import java.util.Iterator;
 import java.util.Set;
@@ -31,6 +33,7 @@ public class ScanGunKeyEventHelper {
    // private String mDeviceName;
 
     public ScanGunKeyEventHelper(OnScanSuccessListener onScanSuccessListener) {
+        Scanner_Tools.getUtil().onCreate(onScanSuccessListener);
         mOnScanSuccessListener = new WeakReference<OnScanSuccessListener>(onScanSuccessListener);
      //   mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         mStringBufferResult = new StringBuffer();
@@ -173,6 +176,7 @@ public class ScanGunKeyEventHelper {
 
 
     public void onDestroy() {
+        Scanner_Tools.getUtil().onDestroy();
         workThread.quit(); // 退出消息循环.quit(); // 退出消息循环
         //mHandler.removeCallbacks(mScanningFishedRunnable);
         mHandler.removeCallbacksAndMessages(null);

@@ -52,7 +52,7 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
 			}
 		});
         init_view();
-        Scanner_Tools.getUtil().onCreate(this);
+
 	}
 
     @Override
@@ -80,7 +80,7 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
 
         mScanGunKeyEventHelper.onDestroy();
         unReg_Receiver_for_BatteryCharging(this);
-        Scanner_Tools.getUtil().onDestroy();
+
 		super.onDestroy();
 	}
 

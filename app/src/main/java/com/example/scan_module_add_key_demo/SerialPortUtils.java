@@ -87,7 +87,7 @@ public   class SerialPortUtils {
 
 
 
-	protected void onCreate(ScanGunKeyEventHelper.OnScanSuccessListener onScanSuccessListener) {
+	public void onCreate(ScanGunKeyEventHelper.OnScanSuccessListener onScanSuccessListener) {
 		mOnScanSuccessListener = new WeakReference<ScanGunKeyEventHelper.OnScanSuccessListener>(onScanSuccessListener);
 		this.stop=false;
 		try {
@@ -139,7 +139,7 @@ public   class SerialPortUtils {
 
 		return sb.toString();
 	}*/
-	protected void onDestroy() {
+	public void onDestroy() {
 		this.stop=true;
 		if (mReadThread != null)
 			mReadThread.interrupt();
