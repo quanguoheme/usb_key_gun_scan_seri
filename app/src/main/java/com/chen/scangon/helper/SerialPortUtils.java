@@ -102,7 +102,7 @@ public   class SerialPortUtils {
 			//DisplayError(R.string.error_security);
 		} catch (IOException e) {
 			//DisplayError(R.string.error_unknown);
-		} catch (InvalidParameterException e) {
+		} catch (Exception e) {
 			//DisplayError(R.string.error_configuration);
 		}
 	}
@@ -112,7 +112,7 @@ public   class SerialPortUtils {
 		ScanGunKeyEventHelper.OnScanSuccessListener listener=  mOnScanSuccessListener.get();
 		if (listener != null &&  size !=0) {
 			try {
-				listener.onScanSuccess(new String(buffer,0,size,"utf-8"));
+				listener.onScanSuccess("acm:"+new String(buffer,0,size,"utf-8"));
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}

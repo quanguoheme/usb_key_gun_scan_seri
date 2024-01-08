@@ -46,9 +46,10 @@ public class ScanGunKeyEventHelper {
      */
     private void performScanSuccess() {
         String barcode = mStringBufferResult.toString();
+
         OnScanSuccessListener listener=  mOnScanSuccessListener.get();
         if (listener != null && mStringBufferResult.length() !=0)
-            listener.onScanSuccess(barcode);
+            listener.onScanSuccess("usb_hid:"+barcode);
         mStringBufferResult.setLength(0);
     }
 
@@ -147,9 +148,18 @@ public class ScanGunKeyEventHelper {
                 case KeyEvent.KEYCODE_AT:
                     aChar =  '@';
                     break;
+                case KeyEvent.KEYCODE_COMMA:
+                   aChar = mCaps ? '<' :  ',';
+                    break;
+                case KeyEvent.KEYCODE_ENTER:
+                    aChar = mCaps ? '<' :  0;
+                    break;
+                case KeyEvent.KEYCODE_SHIFT_RIGHT:
+                    aChar = 0;
+                    break;
                 default:
                   //  if(keyCode!= 60&& keyCode!=59)
-                  //  Log.d("ca2","jason: "+ mCaps+  ",keyCode:"+keyCode);
+                  Log.d("ca1","jason: "+ mCaps+  ",keyCode:"+keyCode);
                     aChar = 0;
                     break;
             }
@@ -218,7 +228,7 @@ public class ScanGunKeyEventHelper {
 
     @Deprecated*/
     public boolean isScanGunEvent(KeyEvent event) {
-        Log.d("ca1","name:"+event.getDevice().getName()+",vid:"+Integer.toHexString(event.getDevice().getVendorId())+",pid:"+Integer.toHexString(event.getDevice().getProductId()));
+       // Log.d("ca1","name:"+event.getDevice().getName()+",vid:"+Integer.toHexString(event.getDevice().getVendorId())+",pid:"+Integer.toHexString(event.getDevice().getProductId()));
         return true;
        // return event.getDevice().getName().equals(mDeviceName);
     }

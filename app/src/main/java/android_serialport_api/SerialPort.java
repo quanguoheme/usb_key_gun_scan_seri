@@ -19,6 +19,8 @@ package android_serialport_api;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 
 public class SerialPort {
 
@@ -39,6 +42,71 @@ public class SerialPort {
 	private FileInputStream mFileInputStream;
 	private FileOutputStream mFileOutputStream;
 
+	public static String execCommand(String cmd){
+		Process process = null;
+		DataOutputStream os = null;
+		String msg="";
+		try{
+			process = Runtime.getRuntime().exec("hdxsu");
+			os = new DataOutputStream(process.getOutputStream());
+			os.writeBytes(cmd+"\n");
+			os.flush();
+			os.writeBytes("exit\n");
+			os.flush();
+
+			String line;
+
+			//Log.i(TAG, "execCommand: " + "BufferedReader");
+			BufferedReader bufferedReader = new BufferedReader(
+					new InputStreamReader(process.getInputStream()));
+
+			//Log.i(TAG, "bufferedReader: " + "BufferedReader readLine");
+			while ((line = bufferedReader.readLine()) != null) {
+				msg+=line+"\n";
+				Log.i(TAG, "bufferedReader read: " + line);
+			}
+			// Log.i(TAG, "waitFor");
+			process.waitFor();
+			// Log.i(TAG, "waitFor END");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return msg;
+		} finally {
+			try {
+				if (os != null)   {
+					os.close();
+				}
+				process.destroy();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		return msg;
+	}
+	public static int execShellCmdForStatue(String command) {
+		int status = -1;
+		try {
+			Process process = null;
+			BufferedReader error = null;
+			BufferedReader reader = null;
+			BufferedWriter writer = null;
+			process = Runtime.getRuntime().exec("hdxsu");
+			writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
+			error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+			reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+			//writer.write("wm overscan 0,0,0,-210 \n");
+			writer.write(command);
+			writer.flush();
+
+
+			Log.d(TAG, " _________ddd----- command: " + command + "    status = " + status);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return status;
+
+	}
 	public SerialPort(File device, int baudrate, int flags) throws SecurityException, IOException {
 
 		/* Check access permission */
@@ -51,9 +119,10 @@ public class SerialPort {
 				//su = Runtime.getRuntime().exec("/system/xbin/su");
 				//String cmd = "chmod 666 " + device.getAbsolutePath() + "\n"
 						//+ "exit\n";
-				String cmd = "chmod 666 " + device.getAbsolutePath();
+				String cmd = " chmod 666 " + device.getAbsolutePath() ;
 				Log.d(TAG, "cmd====================="+cmd);
-				Runtime.getRuntime().exec(cmd);
+				//Runtime.getRuntime().exec(cmd);
+				execCommand(cmd);
 				//su.getOutputStream().write(cmd.getBytes());
 				if (/*(su.waitFor() != 0) || */!device.canRead()
 						|| !device.canWrite()) {

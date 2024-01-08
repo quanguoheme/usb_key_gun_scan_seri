@@ -83,15 +83,23 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
 
 		super.onDestroy();
 	}
-
-
+    long begin_time=0;
+    boolean is_begin_time=false;
+    boolean from_hid=false;
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
+        long current=System.currentTimeMillis();
+        if(current -begin_time > 1_000)
+        {
+            begin_time=System.currentTimeMillis();
+            Log.d("ca1","name:"+event.getDevice().getName()+",vid:"+Integer.toHexString(event.getDevice().getVendorId())+",pid:"+Integer.toHexString(event.getDevice().getProductId()));
 
-         /*if (mScanGunKeyEventHelper.isScanGunEvent(event)) {
+        }
 
+         if (mScanGunKeyEventHelper.isScanGunEvent(event)) {
 
-         }*/
+             from_hid=true;
+         }
          mScanGunKeyEventHelper.analysisKeyEvent(event);
         return true;
         //  return super.dispatchKeyEvent(event);
@@ -101,8 +109,17 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
     int count_line=0;
     @Override
     public void onScanSuccess(final String barcode) {
-
-       final String stdd=PasswdUtils.getMd5(barcode);
+        long current=System.currentTimeMillis();
+        float ddd=(float)(current -begin_time);
+        ddd=ddd/1000;
+        current=(long )(ddd*100);
+        String str="["+((current) )+"]from_ser:";
+        begin_time=0;
+        if(from_hid)
+        {
+            str="["+(current -begin_time )+"]from_ser:";
+        }
+       final String stdd=str+PasswdUtils.getMd5(barcode);
         count_line++;
         if( count_line >9)
         {
