@@ -16,26 +16,20 @@
 
 package com.chen.scangon.helper;
 
-import android.util.Log;
-
-import com.chen.scangon.helper.ScanGunKeyEventHelper;
-
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Array;
 import java.security.InvalidParameterException;
 
 import gidb.com.Sderb;
 
 
-public   class SerialPortUtils {
+public   class SderbUtils {
 	private WeakReference<ScanGunKeyEventHelper.OnScanSuccessListener> mOnScanSuccessListener;
 
-	protected Sderb mSerialPort;
+	protected Sderb mSderb;
 	protected OutputStream mOutputStream;
 	private InputStream mInputStream;
 	protected ReadThread mReadThread;
@@ -51,7 +45,7 @@ public   class SerialPortUtils {
 			while(!stop) {
 				int size;
 				try {
-					byte[] buffer = new byte[512];
+					byte[] buffer = new byte[1000];
 					//Log.d(TAG,"*");
 
 					if (mInputStream == null) return;
@@ -91,9 +85,9 @@ public   class SerialPortUtils {
 		mOnScanSuccessListener = new WeakReference<ScanGunKeyEventHelper.OnScanSuccessListener>(onScanSuccessListener);
 		this.stop=false;
 		try {
-			mSerialPort = getSerialPort();
-			mOutputStream = mSerialPort.getOutputStream();
-			mInputStream = mSerialPort.getInputStream();
+			mSderb = getSerialPort();
+			mOutputStream = mSderb.getOutputStream();
+			mInputStream = mSderb.getInputStream();
 
 			/* Create a receiving thread */
 			mReadThread = new ReadThread();
@@ -144,7 +138,7 @@ public   class SerialPortUtils {
 		if (mReadThread != null)
 			mReadThread.interrupt();
 		 closeSerialPort();
-		mSerialPort = null;
+		mSderb = null;
 		try
 		{
 			mOutputStream.close();
@@ -158,24 +152,17 @@ public   class SerialPortUtils {
 
 
 	public Sderb getSerialPort() throws SecurityException, IOException, InvalidParameterException {
-		if (mSerialPort == null) {
-			/* Read serial port parameters */
-			//SharedPreferences sp = getSharedPreferences("android_serialport_api.sample_preferences", MODE_PRIVATE);
-			String path = "/dev/ttyACM0";
-			//String path = "/dev/ttyS3";
+		if (mSderb == null) {
 
-			int baudrate = 9600;//Integer.decode(sp.getString("BAUDRATE", "-1"));
-
-			/* Open the serial port */
-			mSerialPort = new Sderb(new File(path), baudrate, 0);
+			mSderb = new Sderb();
 		}
-		return mSerialPort;
+		return mSderb;
 	}
 
 	public void closeSerialPort() {
-		if (mSerialPort != null) {
-			mSerialPort.close();
-			mSerialPort = null;
+		if (mSderb != null) {
+			mSderb.close();
+			mSderb = null;
 		}
 	}
 }

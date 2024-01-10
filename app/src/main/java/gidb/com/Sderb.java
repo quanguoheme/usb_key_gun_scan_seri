@@ -107,44 +107,11 @@ public class Sderb {
 		return status;
 
 	}
-	public Sderb(File device, int baudrate, int flags) throws SecurityException, IOException {
+	public Sderb( ) throws SecurityException, IOException {
 
-		/* Check access permission */
-		if (!device.canRead() || !device.canWrite()) {
-			
-			try {
-				Log.d(TAG, "1============================");
-				// Missing read/write permission, trying to chmod the file 
-				//Process su;
-				//su = Runtime.getRuntime().exec("/system/xbin/su");
-				//String cmd = "chmod 666 " + device.getAbsolutePath() + "\n"
-						//+ "exit\n";
-				String cmd = " chmod 666 " + device.getAbsolutePath() ;
-				Log.d(TAG, "cmd====================="+cmd);
-				//Runtime.getRuntime().exec(cmd);
-				execCommand(cmd);
-				//su.getOutputStream().write(cmd.getBytes());
-				if (/*(su.waitFor() != 0) || */!device.canRead()
-						|| !device.canWrite()) {
-					Log.d(TAG, "2=====================");
-					throw new SecurityException();
-				}
-			} catch (Exception e) {
-				Log.d(TAG, "3=================");
-				e.printStackTrace();
-				throw new SecurityException();
-			}
-			
-			//do_exec("su root\n");
-			//Log.e(TAG, "=============cmd : "+device.getAbsolutePath());
-			//do_exec("chmod 755 " + device.getAbsolutePath() + "\n");
-			//do_exec("rm /sdcard/123");
-		//Runtime.getRuntime().exec("/system/xbin/su");
-		//Runtime.getRuntime().exec("chmod 755 /dev/ttyS1");
 
-		}
+		mFd = getdesc();
 
-		mFd = getdesc(device.getAbsolutePath(), baudrate, flags);
 		if (mFd == null) {
 			Log.d(TAG, "native open returns null");
 			throw new IOException();
@@ -181,7 +148,7 @@ public class Sderb {
 	}  
 
 	// JNI 
-	private native static FileDescriptor getdesc(String path, int baudrate, int flags);
+	private native static FileDescriptor getdesc();
 	public native void close();
 	static {
 		System.loadLibrary("serial_port_d");

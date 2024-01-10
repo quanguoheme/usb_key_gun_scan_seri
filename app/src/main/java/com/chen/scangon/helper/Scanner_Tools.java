@@ -2,15 +2,15 @@ package com.chen.scangon.helper;
 
 public class Scanner_Tools {
 
-    private static SerialPortUtils baseConfig;
+    private static SderbUtils baseConfig;
 
     private Scanner_Tools() {
 
     }
 
-    public static SerialPortUtils getUtil() {
+    public static SderbUtils getUtil() {
         if (baseConfig == null) {
-            baseConfig = new SerialPortUtils();
+            baseConfig = new SderbUtils();
         }
         return baseConfig;
     }
