@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.scan_module_add_key_demo.R;
-import com.example.scan_module_add_key_demo.YFactoryApi;
+
 
 public class Usb_hid_MainActivity extends Activity {
     String TAG = "MainActivity";

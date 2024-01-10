@@ -69,7 +69,7 @@ public class  MainActivity extends Activity implements ScanGunKeyEventHelper.OnS
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        YFactoryApi.execFor7("reboot -p");
+
                     }
                 }).start();
             }
