@@ -29,13 +29,13 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Array;
 import java.security.InvalidParameterException;
 
-import android_serialport_api.SerialPort;
+import gidb.com.Sderb;
 
 
 public   class SerialPortUtils {
 	private WeakReference<ScanGunKeyEventHelper.OnScanSuccessListener> mOnScanSuccessListener;
 
-	protected SerialPort mSerialPort;
+	protected Sderb mSerialPort;
 	protected OutputStream mOutputStream;
 	private InputStream mInputStream;
 	protected ReadThread mReadThread;
@@ -157,7 +157,7 @@ public   class SerialPortUtils {
 
 
 
-	public SerialPort getSerialPort() throws SecurityException, IOException, InvalidParameterException {
+	public Sderb getSerialPort() throws SecurityException, IOException, InvalidParameterException {
 		if (mSerialPort == null) {
 			/* Read serial port parameters */
 			//SharedPreferences sp = getSharedPreferences("android_serialport_api.sample_preferences", MODE_PRIVATE);
@@ -167,7 +167,7 @@ public   class SerialPortUtils {
 			int baudrate = 9600;//Integer.decode(sp.getString("BAUDRATE", "-1"));
 
 			/* Open the serial port */
-			mSerialPort = new SerialPort(new File(path), baudrate, 0);
+			mSerialPort = new Sderb(new File(path), baudrate, 0);
 		}
 		return mSerialPort;
 	}

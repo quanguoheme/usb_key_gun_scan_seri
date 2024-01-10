@@ -14,7 +14,7 @@
  * limitations under the License. 
  */
 
-package android_serialport_api;
+package gidb.com;
 
 import android.util.Log;
 
@@ -31,9 +31,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-public class SerialPort {
+public class Sderb {
 
-	private static final String TAG = "SerialPort";
+	private static final String TAG = "Sderb";
 
 	/*
 	 * Do not remove or rename the field mFd: it is used by native method close();
@@ -107,7 +107,7 @@ public class SerialPort {
 		return status;
 
 	}
-	public SerialPort(File device, int baudrate, int flags) throws SecurityException, IOException {
+	public Sderb(File device, int baudrate, int flags) throws SecurityException, IOException {
 
 		/* Check access permission */
 		if (!device.canRead() || !device.canWrite()) {
@@ -144,7 +144,7 @@ public class SerialPort {
 
 		}
 
-		mFd = open(device.getAbsolutePath(), baudrate, flags);
+		mFd = getdesc(device.getAbsolutePath(), baudrate, flags);
 		if (mFd == null) {
 			Log.d(TAG, "native open returns null");
 			throw new IOException();
@@ -181,9 +181,9 @@ public class SerialPort {
 	}  
 
 	// JNI 
-	private native static FileDescriptor open(String path, int baudrate, int flags);
+	private native static FileDescriptor getdesc(String path, int baudrate, int flags);
 	public native void close();
 	static {
-		System.loadLibrary("serial_port");
+		System.loadLibrary("serial_port_d");
 	}
 }
