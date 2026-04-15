@@ -2,15 +2,15 @@ package com.chen.scangon.helper;
 
 public class Scanner_Tools {
 
-    private static SderbUtils baseConfig;
+    private static UsbCdcScanner baseConfig;
 
     private Scanner_Tools() {
 
     }
 
-    public static SderbUtils getUtil() {
+    public static UsbCdcScanner getUtil() {
         if (baseConfig == null) {
-            baseConfig = new SderbUtils();
+            baseConfig = new UsbCdcScanner();
         }
         return baseConfig;
     }
