@@ -11,6 +11,7 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 import android.hardware.usb.UsbInterface;
 import android.hardware.usb.UsbManager;
+import android.os.Build;
 import android.util.Log;
 
 import java.util.HashMap;
@@ -101,9 +102,17 @@ public class USBHIDReader {
 						Log.i(TAG, "found itDeviceInfo a2.1: ");
 					}
 				} else {
-					permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
+					int flags = 0;
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+						flags = PendingIntent.FLAG_MUTABLE;
+					}
+					permissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), flags);
 					IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-					context.registerReceiver(usbReceiver, filter);
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+						context.registerReceiver(usbReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+					} else {
+						context.registerReceiver(usbReceiver, filter);
+					}
 					usbManager.requestPermission(usbDevice, permissionIntent);
 					Log.i(TAG, "found not hasPermission : " + Integer.toHexString(device.getVendorId())  + " , "
 							+ Integer.toHexString(device.getProductId())  +",getProductName:"+device.getProductName());
