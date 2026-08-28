@@ -8,6 +8,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <uses-native-library android:name="libhdxutil.so" android:required="false" />
         <activity
             android:name="com.example.scan_module_add_key_demo.MainActivity"
             android:exported="true"

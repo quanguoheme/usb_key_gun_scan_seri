@@ -14,6 +14,8 @@ import android.hardware.usb.UsbManager;
 import android.os.Build;
 import android.util.Log;
 
+import hdx.HdxUtil;
+
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -23,9 +25,12 @@ public class UsbCdcScanner {
     private static final String ACTION_USB_PERMISSION =
             "com.example.scan_module_add_key_demo.USB_CDC_PERMISSION";
 
-    private static final int TARGET_VENDOR_ID = 0x152A;
-    private static final int TARGET_PRODUCT_ID = 0x880F;
-
+   private static final int TARGET_VENDOR_ID_1 = 0x152A;
+   private static final int TARGET_PRODUCT_ID_1 = 0x880F;
+    //private static final int TARGET_VENDOR_ID_1 = 0x0525;
+   // private static final int TARGET_PRODUCT_ID_1 = 0xa4a7;
+    private static final int TARGET_VENDOR_ID_2 = 0x0525;
+    private static final int TARGET_PRODUCT_ID_2 = 0xa4a7;
     private static final int CDC_SET_LINE_CODING = 0x20;
     private static final int CDC_SET_CONTROL_LINE_STATE = 0x22;
     private static final int USB_RECIP_INTERFACE = 0x01;
@@ -50,6 +55,36 @@ public class UsbCdcScanner {
     private UsbEndpoint bulkOutEndpoint;
     private UsbDeviceConnection connection;
     private ReadThread readThread;
+
+    /** VID/PID pairs parsed from HdxUtil.GetBaseDeviceID, used as fallback */
+    private int[][] fallbackVidPidPairs;
+
+    /**
+     * Parse comma-separated hex string "vid1,pid1,vid2,pid2,..." into int[][] pairs.
+     * Returns empty array on parse failure.
+     */
+    private static int[][] parseVidPidPairs(String raw) {
+        if (raw == null || raw.isEmpty()) {
+            return new int[0][2];
+        }
+        String[] tokens = raw.split(",");
+        if (tokens.length < 2 || tokens.length % 2 != 0) {
+            Log.e(TAG, "invalid vid/pid string: " + raw);
+            return new int[0][2];
+        }
+        int pairCount = tokens.length / 2;
+        int[][] pairs = new int[pairCount][2];
+        try {
+            for (int i = 0; i < pairCount; i++) {
+                pairs[i][0] = Integer.parseInt(tokens[i * 2].trim(), 16);
+                pairs[i][1] = Integer.parseInt(tokens[i * 2 + 1].trim(), 16);
+            }
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "failed to parse vid/pid string: " + raw, e);
+            return new int[0][2];
+        }
+        return pairs;
+    }
 
     public void onCreate(ScanGunKeyEventHelper.OnScanSuccessListener onScanSuccessListener) {
         listenerRef = new WeakReference<ScanGunKeyEventHelper.OnScanSuccessListener>(onScanSuccessListener);
@@ -138,25 +173,88 @@ public class UsbCdcScanner {
                     + ", pid=0x" + Integer.toHexString(device.getProductId())
                     + ", class=" + device.getDeviceClass()
                     + ", interfaceCount=" + device.getInterfaceCount());
+        }
 
-            if (isTargetDevice(device)) {
-                if (usbManager.hasPermission(device)) {
-                    openDevice(device);
-                } else {
-                    Log.i(TAG, "request usb permission for target device");
-                    usbManager.requestPermission(device, permissionIntent);
+        // Phase 1: try hardcoded TARGET_VENDOR_ID_1 / TARGET_PRODUCT_ID_1
+        for (UsbDevice device : deviceList.values()) {
+            int vid = device.getVendorId();
+            int pid = device.getProductId();
+            if ((vid == TARGET_VENDOR_ID_1 && pid == TARGET_PRODUCT_ID_1)  ||  (vid == TARGET_VENDOR_ID_2 && pid == TARGET_PRODUCT_ID_2)) {
+                Log.i(TAG, "phase1: matched hardcoded vid=0x" + Integer.toHexString(vid)
+                        + " pid=0x" + Integer.toHexString(pid));
+                if (requestOrOpen(device)) {
+                    return;
                 }
-                return;
             }
         }
 
-        Log.i(TAG, "target usb cdc device not found");
+        // Phase 2: fallback to HdxUtil.GetBaseDeviceID VID/PID pairs
+        Log.i(TAG, "phase1 hardcoded vid/pid not found, trying GetBaseDeviceID fallback");
+        try {
+            String raw = HdxUtil.GetBaseDeviceID("");
+            Log.i(TAG, "GetBaseDeviceID returned: " + raw);
+            fallbackVidPidPairs = parseVidPidPairs(raw);
+        } catch (Throwable t) {
+            Log.e(TAG, "GetBaseDeviceID failed (library may not be available)", t);
+            fallbackVidPidPairs = new int[0][2];
+        }
+
+        for (int[] pair : fallbackVidPidPairs) {
+            int targetVid = pair[0];
+            int targetPid = pair[1];
+            for (UsbDevice device : deviceList.values()) {
+                int vid = device.getVendorId();
+                int pid = device.getProductId();
+                if (vid == targetVid && pid == targetPid) {
+                    Log.i(TAG, "phase2: matched fallback vid=0x" + Integer.toHexString(vid)
+                            + " pid=0x" + Integer.toHexString(pid));
+                    if (requestOrOpen(device)) {
+                        return;
+                    }
+                }
+            }
+        }
+
+        Log.i(TAG, "target usb cdc device not found in both phases");
+    }
+
+    /**
+     * Try to open device or request permission. Returns true if handled
+     * (opened or permission requested), false if should continue trying.
+     */
+    private boolean requestOrOpen(UsbDevice device) {
+        if (usbManager.hasPermission(device)) {
+            openDevice(device);
+            return true;
+        } else {
+            Log.i(TAG, "request usb permission for device vid=0x"
+                    + Integer.toHexString(device.getVendorId())
+                    + " pid=0x" + Integer.toHexString(device.getProductId()));
+            usbManager.requestPermission(device, permissionIntent);
+            return true;
+        }
     }
 
     private boolean isTargetDevice(UsbDevice device) {
-        return device != null
-                && device.getVendorId() == TARGET_VENDOR_ID
-                && device.getProductId() == TARGET_PRODUCT_ID;
+        if (device == null) {
+            return false;
+        }
+        int vid = device.getVendorId();
+        int pid = device.getProductId();
+        // Check hardcoded constants
+        if ((vid == TARGET_VENDOR_ID_1 && pid == TARGET_PRODUCT_ID_1)
+                || (vid == TARGET_VENDOR_ID_2 && pid == TARGET_PRODUCT_ID_2)) {
+            return true;
+        }
+        // Check fallback VID/PID pairs
+        if (fallbackVidPidPairs != null) {
+            for (int[] pair : fallbackVidPidPairs) {
+                if (vid == pair[0] && pid == pair[1]) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void openDevice(UsbDevice device) {
