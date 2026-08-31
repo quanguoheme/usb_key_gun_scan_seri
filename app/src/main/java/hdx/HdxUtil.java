@@ -66,7 +66,7 @@ public class HdxUtil{
     public native static int customLed(int led,int enable);
     public native static int SwitchFilter(int status);
     private native static int cameraBacklightControl(int br);
-    //for led8 for gc111
+    //for led8 for 111
     public native static int SetLed8Display(byte data[]);
     public native static int SetLed8DisplayString(String data);
     public native static int SetGreedLed(int enable);
